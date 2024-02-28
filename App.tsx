@@ -13,9 +13,14 @@ import {RootState} from './src/rudux/store';
 import Login from './src/screens/Login';
 import {colors} from './src/styles/theme';
 import {magic} from './src/utils/magic';
+import 'react-native-get-random-values';
+import {ConvexReactClient, ConvexProvider} from 'convex/react';
+import Config from 'react-native-config';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const NativeStack = createNativeStackNavigator();
+
+const convex = new ConvexReactClient(Config.CONVEX_URL as string);
 
 const NativeStackScreens = () => {
   return (
@@ -42,33 +47,35 @@ function App(): React.JSX.Element {
   }, [isAuthenticated]);
 
   return (
-    <SafeAreaProvider>
-      <SafeAreaView style={styles.backgroundStyle}>
-        <magic.Relayer />
-        <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-        <NavigationContainer ref={navigationRef}>
-          <Stack.Navigator screenOptions={{headerShown: false, title: ''}}>
-            {isLoggedIn ? (
-              <Stack.Group>
-                <Stack.Screen
-                  name="Root"
-                  component={NativeStackScreens}
-                  options={{gestureEnabled: false}}
-                />
-              </Stack.Group>
-            ) : (
-              <Stack.Group
-                screenOptions={{
-                  headerShown: false,
-                  title: '',
-                }}>
-                <Stack.Screen name="Login" component={Login} />
-              </Stack.Group>
-            )}
-          </Stack.Navigator>
-        </NavigationContainer>
-      </SafeAreaView>
-    </SafeAreaProvider>
+    <ConvexProvider client={convex}>
+      <SafeAreaProvider>
+        <SafeAreaView style={styles.backgroundStyle}>
+          <magic.Relayer />
+          <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
+          <NavigationContainer ref={navigationRef}>
+            <Stack.Navigator screenOptions={{headerShown: false, title: ''}}>
+              {isLoggedIn ? (
+                <Stack.Group>
+                  <Stack.Screen
+                    name="Root"
+                    component={NativeStackScreens}
+                    options={{gestureEnabled: false}}
+                  />
+                </Stack.Group>
+              ) : (
+                <Stack.Group
+                  screenOptions={{
+                    headerShown: false,
+                    title: '',
+                  }}>
+                  <Stack.Screen name="Login" component={Login} />
+                </Stack.Group>
+              )}
+            </Stack.Navigator>
+          </NavigationContainer>
+        </SafeAreaView>
+      </SafeAreaProvider>
+    </ConvexProvider>
   );
 }
 

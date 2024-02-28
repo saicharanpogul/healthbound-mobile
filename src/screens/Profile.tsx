@@ -1,26 +1,24 @@
+import {yupResolver} from '@hookform/resolvers/yup';
 import React, {useCallback, useState} from 'react';
+import {useForm} from 'react-hook-form';
 import {Text, View} from 'react-native';
 import {ScaledSheet} from 'react-native-size-matters';
-import Input from '../components/common/Input';
-import {colors} from '../styles/theme';
+import {useDispatch} from 'react-redux';
 import * as yup from 'yup';
-import {useForm} from 'react-hook-form';
-import {yupResolver} from '@hookform/resolvers/yup';
 import Button from '../components/common/Button';
-import {useDispatch, useSelector} from 'react-redux';
-import {RootState} from '../rudux/store';
-import {setData, setIsLoggedIn} from '../rudux/reducers/profile';
+import Input from '../components/common/Input';
+import {useAppSelector} from '../hooks/useRedux';
+import {resetProfile, setData} from '../rudux/reducers/profile';
+import {colors} from '../styles/theme';
 import {magic} from '../utils/magic';
 
 const Profile = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const profileState = useSelector<RootState>(
-    state => state.profile,
-  ) as unknown as ProfileValues;
+  const profileState = useAppSelector(state => state.profile);
   const dispatch = useDispatch();
   const schema = yup.object().shape({
-    name: yup.string().required('Name is required'),
-    address: yup.string().required('Address is required'),
+    username: yup.string().required('Username is required'),
+    address: yup.string().required('Primary address is required'),
   });
   const {
     control,
@@ -29,19 +27,18 @@ const Profile = () => {
   } = useForm<ProfileValues>({
     resolver: yupResolver(schema),
     defaultValues: {
-      address: profileState.address || '',
-      name: profileState.name || '',
+      address: profileState.primaryAddress || '',
+      username: profileState.username || '',
     },
   });
   const onSubmit = (data: ProfileValues) => {
-    // console.log(data.address);
-    dispatch(setData({address: data.address, name: data.name}));
+    dispatch(setData({address: data.address, username: data.username}));
   };
   const logout = useCallback(async () => {
     try {
       setIsLoading(true);
       await magic.user.logout();
-      dispatch(setIsLoggedIn({isLoggedIn: false}));
+      dispatch(resetProfile());
     } catch (error) {
     } finally {
       setIsLoading(false);
@@ -52,18 +49,18 @@ const Profile = () => {
       <View style={styles.view}>
         <Text style={styles.title}>Profile</Text>
         <Input
-          label="Name"
-          name="name"
+          label="Username"
+          name="username"
           control={control}
-          placeholder="Name"
+          placeholder="Username"
           style={styles.addressInput}
-          error={errors.address?.message}
+          error={errors.username?.message}
         />
         <Input
-          label="Address"
+          label="Primary Address"
           name="address"
           control={control}
-          placeholder="Address"
+          placeholder="Primary Address"
           style={styles.addressInput}
           error={errors.address?.message}
         />

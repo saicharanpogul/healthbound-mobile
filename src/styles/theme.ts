@@ -36,6 +36,7 @@ export const colors = {
 };
 
 export const fontFamily = {
+  primary: 'RammettoOne-Regular',
   normal: {
     black: 'Poppins-Black',
     extraBold: 'Poppins-ExtraBold',

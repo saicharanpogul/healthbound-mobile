@@ -27,6 +27,6 @@ interface HealthData {
 }
 
 type ProfileValues = {
-  name: string;
+  username: string;
   address: string;
 };

@@ -1,7 +1,7 @@
 import React from 'react';
 import {Image, Text, View, Platform} from 'react-native';
 import {ScaledSheet} from 'react-native-size-matters';
-import {colors} from '../styles/theme';
+import {colors, fontFamily} from '../styles/theme';
 import {Illustration} from '../assets/images';
 import Input from '../components/common/Input';
 import * as yup from 'yup';
@@ -11,7 +11,9 @@ import Button from '../components/common/Button';
 import {KeyboardAvoidingView} from 'react-native';
 import {magic} from '../utils/magic';
 import {useDispatch} from 'react-redux';
-import {setIsLoggedIn} from '../rudux/reducers/profile';
+import {setIsLoggedIn, setData} from '../rudux/reducers/profile';
+import {useMutation} from 'convex/react';
+import {api} from '../../convex/_generated/api';
 
 interface LoginValues {
   email: string;
@@ -19,6 +21,7 @@ interface LoginValues {
 
 const Login = () => {
   const dispatch = useDispatch();
+  const createUser = useMutation(api.user.createUser);
   const schema = yup.object().shape({
     email: yup.string().required('Name is required'),
   });
@@ -36,8 +39,13 @@ const Login = () => {
     try {
       await magic.auth.loginWithEmailOTP({email: data.email});
       dispatch(setIsLoggedIn({isLoggedIn: true}));
+      const user = await magic.user.getInfo();
+      const userId = await createUser({
+        address: user.publicAddress?.toString() as string,
+      });
+      dispatch(setData({address: user.publicAddress as string, id: userId}));
     } catch (error) {
-      console.log(error);
+      dispatch(setData({address: '', id: '', username: ''}));
       dispatch(setIsLoggedIn({isLoggedIn: false}));
     }
   };
@@ -88,8 +96,8 @@ const styles = ScaledSheet.create({
   },
   header: {
     fontSize: '24@s',
-    color: colors.text.main,
-    fontFamily: 'Poppins',
+    color: colors.primary.main,
+    fontFamily: fontFamily.primary,
     fontWeight: '800',
     textAlign: 'center',
     marginTop: '48@s',
@@ -97,7 +105,7 @@ const styles = ScaledSheet.create({
   subTitle: {
     fontSize: '16@s',
     color: colors.text.main,
-    fontFamily: 'Poppins',
+    fontFamily: fontFamily.normal.medium,
     fontWeight: '500',
     textAlign: 'center',
     marginTop: '16@s',
@@ -106,7 +114,7 @@ const styles = ScaledSheet.create({
     paddingHorizontal: '24@s',
     fontSize: '16@s',
     color: colors.text.main,
-    fontFamily: 'Poppins',
+    fontFamily: fontFamily.italic.medium,
     fontWeight: '700',
     textAlign: 'center',
     marginTop: '16@s',

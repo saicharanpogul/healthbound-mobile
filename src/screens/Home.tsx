@@ -85,7 +85,13 @@ const Home = () => {
   return (
     <View style={styles.screen}>
       <FlatList
+        ListHeaderComponent={
+          <View>
+            <Text>Today</Text>
+          </View>
+        }
         contentContainerStyle={styles.flatlist}
+        ListFooterComponentStyle={{marginTop: 10}}
         data={healthData}
         renderItem={renderItem}
         keyExtractor={(item, index) => index.toString()}
@@ -96,7 +102,7 @@ const Home = () => {
 
 const styles = ScaledSheet.create({
   screen: {
-    paddingVertical: '2@s',
+    height: '100%',
     backgroundColor: colors.background.main,
   },
   flatlist: {

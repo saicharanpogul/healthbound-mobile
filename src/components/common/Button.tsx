@@ -73,7 +73,7 @@ const styles = ScaledSheet.create({
     borderColor: colors.primary.main,
   },
   buttonText: {
-    color: colors.text.dark,
+    color: colors.primary.dark,
     fontFamily: fontFamily.normal.bold,
     fontSize: '14@s',
     textAlign: 'center',

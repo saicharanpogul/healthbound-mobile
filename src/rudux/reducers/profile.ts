@@ -1,19 +1,22 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit';
-import SimpleToast from 'react-native-simple-toast';
 
 import {RootState} from '../store';
 
 export interface ProfileState {
+  id: string;
   isLoggedIn: boolean;
-  name: string;
+  username: string;
+  primaryAddress: string; // user's primary address
   address: string;
   loading: boolean;
   error: string;
 }
 
 const initialState: ProfileState = {
+  id: '',
   isLoggedIn: false,
-  name: 'Unnamed',
+  username: 'Unnamed',
+  primaryAddress: '',
   address: '',
   loading: false,
   error: '',
@@ -24,7 +27,13 @@ export const profile = createSlice({
   initialState,
   reducers: {
     resetProfile: state => {
+      state.id = initialState.id;
+      state.isLoggedIn = initialState.isLoggedIn;
+      state.username = initialState.username;
+      state.primaryAddress = initialState.primaryAddress;
       state.address = initialState.address;
+      state.loading = initialState.loading;
+      state.error = initialState.error;
     },
     setIsLoggedIn: (state, {payload}: PayloadAction<{isLoggedIn: boolean}>) => {
       state.isLoggedIn = payload.isLoggedIn;
@@ -34,13 +43,14 @@ export const profile = createSlice({
       {
         payload,
       }: PayloadAction<{
-        name: string;
         address: string;
+        id?: string;
+        username?: string;
       }>,
     ) => {
-      state.name = payload.name;
+      state.username = payload.username || '';
       state.address = payload.address;
-      SimpleToast.show('Saved', 5000);
+      state.id = payload.id || '';
     },
   },
   // extraReducers: builder => {},
@@ -48,7 +58,7 @@ export const profile = createSlice({
 
 export const {setData, resetProfile, setIsLoggedIn} = profile.actions;
 
-export const getData = (state: RootState) => state.profile.address;
+export const getData = (state: RootState) => state.profile.primaryAddress;
 export const getProfileLoading = (state: RootState) => state.profile.loading;
 export const getProfileError = (state: RootState) => state.profile.error;
 

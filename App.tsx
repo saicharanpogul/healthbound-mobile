@@ -1,102 +1,82 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
+import {NavigationContainer} from '@react-navigation/native';
+import React, {useCallback, useEffect} from 'react';
+import {SafeAreaView, StatusBar, useColorScheme} from 'react-native';
 
-import React from 'react';
-import type {PropsWithChildren} from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
+import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import {SafeAreaProvider} from 'react-native-safe-area-context';
+import {ScaledSheet} from 'react-native-size-matters';
+import {useDispatch, useSelector} from 'react-redux';
+import BottomTabs from './src/components/BottomTabs';
+import {navigationRef} from './src/components/RootNavigation';
+import {setIsLoggedIn} from './src/rudux/reducers/profile';
+import {RootState} from './src/rudux/store';
+import Login from './src/screens/Login';
+import {colors} from './src/styles/theme';
+import {magic} from './src/utils/magic';
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+const Stack = createNativeStackNavigator<RootStackParamList>();
+const NativeStack = createNativeStackNavigator();
 
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
-
-function Section({children, title}: SectionProps): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
+const NativeStackScreens = () => {
   return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
+    <NativeStack.Navigator screenOptions={{headerShown: false}}>
+      <NativeStack.Screen name="BottomTabs" component={BottomTabs} />
+    </NativeStack.Navigator>
   );
-}
+};
 
 function App(): React.JSX.Element {
   const isDarkMode = useColorScheme() === 'dark';
+  const isLoggedIn = useSelector<RootState>(state => state.profile.isLoggedIn);
+  const dispatch = useDispatch();
 
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  };
+  const isAuthenticated = useCallback(async () => {
+    try {
+      const _isLoggedIn = await magic.user.isLoggedIn();
+      dispatch(setIsLoggedIn({isLoggedIn: _isLoggedIn}));
+    } catch (error) {}
+  }, [dispatch]);
+
+  useEffect(() => {
+    isAuthenticated();
+  }, [isAuthenticated]);
 
   return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+    <SafeAreaProvider>
+      <SafeAreaView style={styles.backgroundStyle}>
+        <magic.Relayer />
+        <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
+        <NavigationContainer ref={navigationRef}>
+          <Stack.Navigator screenOptions={{headerShown: false, title: ''}}>
+            {isLoggedIn ? (
+              <Stack.Group>
+                <Stack.Screen
+                  name="Root"
+                  component={NativeStackScreens}
+                  options={{gestureEnabled: false}}
+                />
+              </Stack.Group>
+            ) : (
+              <Stack.Group
+                screenOptions={{
+                  headerShown: false,
+                  title: '',
+                }}>
+                <Stack.Screen name="Login" component={Login} />
+              </Stack.Group>
+            )}
+          </Stack.Navigator>
+        </NavigationContainer>
+      </SafeAreaView>
+    </SafeAreaProvider>
   );
 }
 
-const styles = StyleSheet.create({
+const styles = ScaledSheet.create({
+  backgroundStyle: {
+    height: '100%',
+    backgroundColor: colors.background.dark,
+  },
   sectionContainer: {
     marginTop: 32,
     paddingHorizontal: 24,

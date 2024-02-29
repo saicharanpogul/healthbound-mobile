@@ -16,11 +16,24 @@ import {magic} from './src/utils/magic';
 import 'react-native-get-random-values';
 import {ConvexReactClient, ConvexProvider} from 'convex/react';
 import Config from 'react-native-config';
+import AppleHealthKit, {HealthKitPermissions} from 'react-native-health';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const NativeStack = createNativeStackNavigator();
 
 const convex = new ConvexReactClient(Config.CONVEX_URL as string);
+
+/* Permission options */
+const permissions = {
+  permissions: {
+    read: [
+      AppleHealthKit.Constants.Permissions.ActivitySummary,
+      AppleHealthKit.Constants.Permissions.Steps,
+      AppleHealthKit.Constants.Permissions.ActiveEnergyBurned,
+      AppleHealthKit.Constants.Permissions.StepCount,
+    ],
+  },
+} as HealthKitPermissions;
 
 const NativeStackScreens = () => {
   return (
@@ -45,6 +58,16 @@ function App(): React.JSX.Element {
   useEffect(() => {
     isAuthenticated();
   }, [isAuthenticated]);
+
+  useEffect(() => {
+    AppleHealthKit.initHealthKit(permissions, (error: string) => {
+      /* Called after we receive a response from the system */
+
+      if (error) {
+        console.log('[ERROR] Cannot grant permissions!');
+      }
+    });
+  }, []);
 
   return (
     <ConvexProvider client={convex}>

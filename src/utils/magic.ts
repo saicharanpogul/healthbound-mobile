@@ -6,6 +6,8 @@ export const SOLANA_RPC = `https://mainnet.helius-rpc.com/?api-key=${Config.SOLA
 
 export const MAGIC_LINK_API_KEY = Config.MAGIC_LINK_API_KEY as string;
 
+export const UNDERDOG_API_ENDPOINT = 'https://devnet.underdogprotocol.com';
+
 export const magic = new Magic(MAGIC_LINK_API_KEY, {
   extensions: [
     new SolanaExtension({

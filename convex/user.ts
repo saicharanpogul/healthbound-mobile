@@ -23,22 +23,24 @@ export const createUser = mutation({
 export const updateUser = mutation({
   args: {
     user: v.id('users'),
-    address: v.string(),
-    primaryAddress: v.string(),
-    username: v.string(),
+    address: v.optional(v.string()),
+    primaryAddress: v.optional(v.string()),
+    username: v.optional(v.string()),
+    mint: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     await ctx.db.patch(args.user, {
       address: args.address,
       primaryAddress: args.primaryAddress,
       username: args.username,
+      mint: args.mint,
     });
   },
 });
 
 export const getUser = query({
   args: {
-    id: v.optional(v.id('users')),
+    id: v.optional(v.string()),
     address: v.optional(v.string()),
   },
   handler: async (ctx, args) => {

@@ -57,7 +57,7 @@ const Login = () => {
         <Image source={Illustration} style={styles.illustration} />
         <Text style={styles.header}>Healthbound</Text>
         <Text style={styles.subTitle}>
-          Create your soulbound token associated to your health and claim
+          Create your soulbound token associated with your health & claim
           <Text style={styles.subTitleHighlight}>{' Healthbound Tokens '}</Text>
           every day
         </Text>

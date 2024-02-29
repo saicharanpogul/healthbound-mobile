@@ -15,7 +15,7 @@ export interface ProfileState {
 const initialState: ProfileState = {
   id: '',
   isLoggedIn: false,
-  username: 'Unnamed',
+  username: '',
   primaryAddress: '',
   address: '',
   loading: false,
@@ -43,14 +43,16 @@ export const profile = createSlice({
       {
         payload,
       }: PayloadAction<{
-        address: string;
+        address?: string;
         id?: string;
         username?: string;
+        primaryAddress?: string;
       }>,
     ) => {
-      state.username = payload.username || '';
-      state.address = payload.address;
-      state.id = payload.id || '';
+      state.username = payload.username || state.username;
+      state.address = payload.address || state.address;
+      state.id = payload.id || state.id;
+      state.primaryAddress = payload.primaryAddress || state.primaryAddress;
     },
   },
   // extraReducers: builder => {},
